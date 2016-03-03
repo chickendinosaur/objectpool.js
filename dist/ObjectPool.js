@@ -1,44 +1,5 @@
-Maintains a collection of an objects of a single type for reuse. 
-
----  
-
-# Author  
-
-John Pittman  
-john@chickendinosaur.com  
-
-# Getting Started  
-
-## Installation
-
-#### npm  
-
-npm install @chickendinosaur/objectpool  
-
-## Usage
----  
-
-# Development  
-
-## Installation  
-
-From the project root:
-
-* npm install
-* npm run build
-
-## Commands  
-
-#### Local
-
-npm run:
-
-build, clean, compile, help, init, start, test, compress, publish, update, documentation, set-access, set-author, set-description, set-dist, set-global, set-keywords, set-license, set-main, set-name, set-private, set-repository, set-src, set-test, set-version
-
----  
-
-# License  
-
+/**
+@license
 The MIT License (MIT)
 
 Copyright (c) 2016 John Pittman
@@ -60,3 +21,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = ObjectPool;
+function ObjectPool(classRef, config) {
+    this._classRef = classRef;
+    this._pool = [];
+    this._keyMap = null;
+}
+
+ObjectPool.prototype = {
+    get: function get() {
+        return this._pool.length > 0 ? this._pool.pop().init() : new (Function.prototype.bind.apply(this._classRef, [null].concat(Array.prototype.slice.call(arguments))))();;
+    },
+    put: function put(object) {
+        object.release();
+        this._pool.push(object);
+    }
+};
