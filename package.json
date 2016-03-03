@@ -1,0 +1,74 @@
+{
+  "name": "@chickendinosaur/objectpool",
+  "version": "0.0.1",
+  "description": "Maintains a collection of an objects of a single type for reuse.",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/ObjectPool.js",
+  "bin": {},
+  "author": "John Pittman <john@chickendinosaur.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chickendinosaur/objectpool.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chickendinosaur/objectpool.js/issues"
+  },
+  "homepage": "https://github.com/chickendinosaur/objectpool.js",
+  "keywords": [
+    "object",
+    "pool",
+    "collection",
+    "recycle"
+  ],
+  "private": false,
+  "chickendinosaur": {
+    "access": "public",
+    "srcURL": "src",
+    "distURL": "dist",
+    "global": false,
+    "testURL": "test"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "clean": "gulp clean",
+    "compile": "gulp compile",
+    "help": "package-generator help",
+    "init": "package-generator init",
+    "start": "",
+    "test": "gulp test",
+    "compress": "gulp compress",
+    "publish": "npm run build && npm run set-version && package-generator publish",
+    "update": "package-generator update && npm run build",
+    "documentation": "gulp documentation",
+    "set-access": "package-generator set-access",
+    "set-author": "package-generator set-author",
+    "set-description": "package-generator set-description",
+    "set-dist": "package-generator set-dist",
+    "set-global": "package-generator set-global",
+    "set-keywords": "package-generator set-keywords",
+    "set-license": "package-generator set-license && npm run build",
+    "set-main": "package-generator set-main",
+    "set-name": "package-generator set-name",
+    "set-private": "package-generator set-private",
+    "set-repository": "package-generator set-repository",
+    "set-src": "package-generator set-src",
+    "set-test": "package-generator set-test",
+    "set-version": "package-generator set-version"
+  },
+  "devDependencies": {
+    "@chickendinosaur/gulp-prefixer-license": "*",
+    "@chickendinosaur/gulp-prefixer-usestrict": "*",
+    "@chickendinosaur/package-generator": "*",
+    "babel-preset-es2015": "*",
+    "babel-preset-stage-0": "*",
+    "gulp": "*",
+    "gulp-babel": "*",
+    "gulp-jasmine": "*",
+    "jasmine-reporters": "^2.1.1",
+    "run-sequence": "^1.1.5",
+    "yuidocjs": "*"
+  }
+}
