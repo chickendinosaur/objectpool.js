@@ -32,6 +32,7 @@
     "testURL": "test"
   },
   "scripts": {
+    "benchmark": "gulp babel && node ./test/benchmark/ObjectPool.js",
     "build": "gulp build",
     "clean": "gulp clean",
     "compile": "gulp compile",
@@ -64,6 +65,7 @@
     "@chickendinosaur/package-generator": "*",
     "babel-preset-es2015": "*",
     "babel-preset-stage-0": "*",
+    "benchmark": "^2.1.0",
     "gulp": "*",
     "gulp-babel": "*",
     "gulp-jasmine": "*",

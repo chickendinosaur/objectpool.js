@@ -7,21 +7,25 @@ const ObjectPool = require(path.join('..', '..', 'dist', 'ObjectPool')).default;
 
 describe('ObjectPool', function() {
     let objectPool;
+    // const poolConfig = {
+    //     poolSize: 5
+    // };
 
     function TestClass() {
         this._name = 'Name';
     }
     TestClass.prototype = {
-        init: function(name) {
-        	this._name = name;
-        },
-        release: function() {
+        dispose: function() {
             this._name = '';
         }
     };
 
+    function creationCallback() {
+        return new TestClass();
+    }
+
     function init() {
-        objectPool = new ObjectPool(TestClass);
+        objectPool = new ObjectPool(creationCallback);
     }
 
     beforeEach(function() {
@@ -29,29 +33,42 @@ describe('ObjectPool', function() {
     });
 
     describe('get', function() {
-        it('Creates a new instance when pool is emtpy.', function() {
+        it('Creates a new instance when pool is empty.', function() {
             let obj = objectPool.get();
+            expect(objectPool._allocatedCount).toBe(1);
             expect(obj instanceof TestClass).toBe(true);
         });
         it('Gets recycled object from the pool when there are some.', function() {
             let obj = objectPool.get();
-            objectPool.put(obj);
-            expect(objectPool._pool.length).toBe(1);
+            objectPool.put(new TestClass());
             obj = objectPool.get();
-            expect(objectPool._pool.length).toBe(0);
+            expect(objectPool._poolCount).toBe(0);
         });
     });
 
     describe('put', function() {
-        it('Resets the object.', function() {
-            let obj = objectPool.get();
-            objectPool.put(obj);
-            expect(obj._name).toBe('');
+        it('Adds to the pool count.', function() {
+            objectPool.put(new TestClass());
+            expect(objectPool._poolCount).toBe(1);
         });
-        it('Adds an object to the pool', function() {
-        	let obj = objectPool.get();
-            objectPool.put(obj);
+        it('Expands the pool container.', function() {
+            objectPool.put(new TestClass());
             expect(objectPool._pool.length).toBe(1);
+        });
+    });
+
+    describe('expand', function() {
+        it('Increases the object count of the pool by x amount.', function() {
+            objectPool.expand(5);
+            expect(objectPool._poolCount).toBe(5);
+            expect(objectPool._pool.length).toBe(5);
+        });
+        it('Only increases the container size when the pool runs out of room.', function() {
+            objectPool.expand(5);
+            objectPool.get();
+            objectPool.expand(5);
+            expect(objectPool._poolCount).toBe(9);
+            expect(objectPool._pool.length).toBe(9);
         });
     });
 });
