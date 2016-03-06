@@ -4,7 +4,7 @@ const Benchmark = require('benchmark');
 const suite = new Benchmark.Suite;
 const path = require('path');
 
-const ObjectPool = require(path.join('..', '..', 'dist', 'ObjectPool')).default;
+const Pool = require(path.join('..', '..', 'dist', 'Pool')).default;
 
 /*
 Setup
@@ -37,22 +37,22 @@ var renewObjectCallback = function(name) {
     return this.get().init(name);
 };
 
-const objectPool = new ObjectPool(
+const objectPool = new Pool(
     allocatorCallback,
     renewObjectCallback, {}
 );
 
 let obj = objectPool.create('created');
-//objectPool.put(new PooledObject());
-//objectPool.put(new PooledObject());
+objectPool.put(new PooledObject());
+objectPool.put(new PooledObject());
 
 suite
-    .add('Pool#create#pool depth 0', function() {
-        objectPool.create();
+    .add('Pool#create#put get', function() {
+        objectPool.put(objectPool.create());
     })
-    .add('new', function() {
-        new PooledObject(null);
-    })
+    // .add('new', function() {
+    //     new PooledObject(null);
+    // })
     .on('cycle', function(event) {
         console.log(String(event.target));
     })

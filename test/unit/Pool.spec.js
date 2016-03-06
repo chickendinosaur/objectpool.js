@@ -3,9 +3,9 @@
 const path = require('path');
 const fs = require('fs');
 const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8'));
-const ObjectPool = require(path.join('..', '..', 'dist', 'ObjectPool')).default;
+const Pool = require(path.join('..', '..', 'dist', 'Pool')).default;
 
-describe('ObjectPool', function() {
+describe('Pool', function() {
     let objectPool;
 
     function PooledObject(name) {
@@ -36,7 +36,7 @@ describe('ObjectPool', function() {
     };
 
     function init() {
-        objectPool = new ObjectPool(
+        objectPool = new Pool(
             allocatorCallback,
             renewObjectCallback, {}
         );
@@ -66,6 +66,7 @@ describe('ObjectPool', function() {
             expect(obj).toBe(null);
         });
         it('Hot-swaps the create method to the allocatorCallback when pool goes empty.', function() {
+            objectPool.put(new PooledObject());
             objectPool.get();
             expect(objectPool.create).toBe(allocatorCallback);
         });

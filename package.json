@@ -1,27 +1,29 @@
 {
-  "name": "@chickendinosaur/objectpool",
+  "name": "@chickendinosaur/pool",
   "version": "0.0.1",
   "description": "Maintains a collection of an objects of a single type for reuse.",
   "files": [
     "dist"
   ],
-  "main": "dist/ObjectPool.js",
+  "main": "dist/Pool.js",
   "bin": {},
   "author": "John Pittman <john@chickendinosaur.com>",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chickendinosaur/objectpool.js.git"
+    "url": "https://github.com/chickendinosaur/pool.js.git"
   },
   "bugs": {
-    "url": "https://github.com/chickendinosaur/objectpool.js/issues"
+    "url": "https://github.com/chickendinosaur/pool.js/issues"
   },
-  "homepage": "https://github.com/chickendinosaur/objectpool.js",
+  "homepage": "https://github.com/chickendinosaur/pool.js",
   "keywords": [
     "object",
     "pool",
     "collection",
-    "recycle"
+    "recycle",
+    "fastest",
+    "optimized"
   ],
   "private": false,
   "chickendinosaur": {
@@ -32,7 +34,7 @@
     "testURL": "test"
   },
   "scripts": {
-    "benchmark": "gulp babel && node ./test/benchmark/ObjectPool.js",
+    "benchmark": "gulp babel && node ./test/benchmark/Pool.js",
     "build": "gulp build",
     "clean": "gulp clean",
     "compile": "gulp compile",

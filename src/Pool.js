@@ -1,65 +1,49 @@
 /**
 @license
-The MIT License (MIT)
+GNU GENERAL PUBLIC LICENSE
+
+Version 3, 29 June 2007
 
 Copyright (c) 2016 John Pittman
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
 */
 
 'use strict';
 
 /**
-@class ObjectPool
+@class Pool
 @param {function} allocatorCallback
 @param {function} renewObjectCallback
 @param {object} config
 */
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = ObjectPool;
-function ObjectPool(allocatorCallback, renewObjectCallback, config) {
-    var opts = config || ObjectPool.Defaults;
+export default function Pool(allocatorCallback, renewObjectCallback, config) {
+    const opts = config || Pool.Defaults;
 
     /**
     Hotswap reference for the allocation and renew callbacks.
     Single point of entry for user friendly api and avoids using 'arguments'.
     This was a light-bulb that clicked on at the last second!
-      @method create
+
+    @method create
     @param {*} * - Mimics the constructor.
     @return {*} - Newly created object or one from the pool.
     */
-    this.create = allocatorCallback;
+    this.create = allocatorCallback
 
     /**
     Container for all reusable objects.
-      @property _pool
+
+    @property _pool
     @type {array}
     */
-    this._pool = opts.poolSize > 0 ? [opts.poolSize - 1] : [];
+    this._pool = opts.size > 0 ? [opts.size - 1] : [];
 
     /**
     Represents the current number of of objects not being used.
     _poolCount - 1 represents the index of the next object to use on get.
-      @property _poolCount
+
+    @property _poolCount
     @type {number}
     */
     this._poolCount = 0;
@@ -86,33 +70,38 @@ function ObjectPool(allocatorCallback, renewObjectCallback, config) {
 
     /**
     Total number of objects that have been created by the instance of the pool.
-      @property _allocatedCount
+
+    @property _allocatedCount
     @type {number}
     */
     this._allocatedCount = 0;
 
-    this._tracing = opts.tracing || ObjectPool.Defaults.tracing;
+    this._tracing = opts.tracing || Pool.Defaults.tracing;
 }
 
-ObjectPool.Defaults = {
+Pool.Defaults = {
     tracing: false
 };
 
-ObjectPool.prototype = {
-    constructor: ObjectPool,
+Pool.prototype = {
+    constructor: Pool,
 
     /**
-    The current implementation is to not set any used index to null
-    to avoid an extra index look-up operation for performance.
+    Does not create and new objects.
     Hot swaps the create ref to the allocation callback for an easy api.
-      @method get
-    @return {*} - null if the pool is empty.
+
+    @method get
+    @return {*} - object from the pool or null if empty.
     */
-    get: function get() {
+    get: function() {
         if (this._poolCount > 0) {
+            // Hot-swap
+            if (this._poolCount === 1) {
+                this.create = this._allocatorCallback;
+            }
+
             return this._pool[--this._poolCount];
         } else {
-            this.create = this._allocatorCallback;
             return null;
         }
     },
@@ -120,10 +109,11 @@ ObjectPool.prototype = {
     /**
     Adds an object to the object pool for reuse.
     Hot swaps the create ref to the object reuse callback for an easy api.
-      @method put
+
+    @method put
     @param {*} obj
     */
-    put: function put(obj) {
+    put: function(obj) {
         this._pool[this._poolCount++] = obj;
 
         // Trigger the hot-swap.
