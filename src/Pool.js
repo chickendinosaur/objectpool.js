@@ -17,7 +17,19 @@ Everyone is permitted to copy and distribute verbatim copies of this license doc
 @param {function} renewObjectCallback
 @param {object} config
 */
-export default function Pool(allocatorCallback, renewObjectCallback, config) {
+export default function Pool(
+    allocatorCallback,
+    renewObjectCallback,
+    disposeObjectCallback,
+    config
+) {
+    if (typeof allocatorCallback !== 'function')
+        throw new TypeError();
+    else if (typeof renewObjectCallback !== 'function')
+        throw new TypeError();
+    else if (typeof disposeObjectCallback !== 'function')
+        throw new TypeError();
+
     const opts = config || Pool.Defaults;
 
     /**
@@ -41,19 +53,12 @@ export default function Pool(allocatorCallback, renewObjectCallback, config) {
 
     /**
     Represents the current number of of objects not being used.
-    _poolCount - 1 represents the index of the next object to use on get.
+    _freeCount - 1 represents the index of the next object to use on get.
 
-    @property _poolCount
+    @property _freeCount
     @type {number}
     */
-    this._poolCount = 0;
-
-    /**
-    @method _allocatorCallback
-    @param {*} * - Mimics the constructor.
-    @return {*} - A new object.
-    */
-    this._allocatorCallback = allocatorCallback;
+    this._freeCount = 0;
 
     /**
     @method _renewObjectCallback
@@ -66,7 +71,14 @@ export default function Pool(allocatorCallback, renewObjectCallback, config) {
     @method _disposeObjectCallback
     @param {*} obj - Object to being added to the pool.
     */
-    this._disposeObjectCallback = null;
+    this._disposeObjectCallback = disposeObjectCallback;
+
+    /**
+    @method _allocatorCallback
+    @param {*} * - Mimics the constructor.
+    @return {*} - A new object.
+    */
+    this._allocatorCallback = allocatorCallback;
 
     /**
     Total number of objects that have been created by the instance of the pool.
@@ -76,11 +88,12 @@ export default function Pool(allocatorCallback, renewObjectCallback, config) {
     */
     this._allocatedCount = 0;
 
-    this._tracing = opts.tracing || Pool.Defaults.tracing;
+    this._tracking = opts.tracking || Pool.Defaults.tracking;
 }
 
 Pool.Defaults = {
-    tracing: false
+    size: 0,
+    tracking: false
 };
 
 Pool.prototype = {
@@ -94,13 +107,13 @@ Pool.prototype = {
     @return {*} - object from the pool or null if empty.
     */
     get: function() {
-        if (this._poolCount > 0) {
+        if (this._freeCount > 0) {
             // Hot-swap
-            if (this._poolCount === 1) {
+            if (this._freeCount === 1) {
                 this.create = this._allocatorCallback;
             }
 
-            return this._pool[--this._poolCount];
+            return this._pool[--this._freeCount];
         } else {
             return null;
         }
@@ -114,11 +127,21 @@ Pool.prototype = {
     @param {*} obj
     */
     put: function(obj) {
-        this._pool[this._poolCount++] = obj;
+        this._pool[this._freeCount++] = obj;
 
         // Trigger the hot-swap.
-        if (this._poolCount === 1) {
+        if (this._freeCount === 1) {
             this.create = this._renewObjectCallback;
         }
+    },
+
+    /**
+    @method destroy
+    @param {*}
+    */
+    destroy: function(obj) {
+        this._disposeObjectCallback(obj);
+
+        this.put(obj);
     }
 };

@@ -13,17 +13,15 @@ Setup
 function PooledObject(name) {
     this._name = name || 'Name';
 
-    this.arr = [];
-    this.b = {};
+    this.arr = this.arr || [];
+    this.b = this.b || {};
 }
 
 PooledObject.prototype = {
-    constructor: PooledObject,
     init: function(name) {
         this._name = name;
-
-        return this;
     },
+    constructor: PooledObject,
     dispose: function() {
         this._name = '';
     }
@@ -34,21 +32,28 @@ var allocatorCallback = function(name) {
 };
 
 var renewObjectCallback = function(name) {
-    return this.get().init(name);
+    return this.get().constructor(name);
+};
+
+var disposeObjectCallback = function(obj) {
+    obj._disposed = true;
 };
 
 const objectPool = new Pool(
     allocatorCallback,
-    renewObjectCallback, {}
+    renewObjectCallback,
+    disposeObjectCallback, {
+        size: 0,
+        tracing: false
+    }
 );
 
-let obj = objectPool.create('created');
-objectPool.put(new PooledObject());
-objectPool.put(new PooledObject());
+//let obj = objectPool.create('created');
+//objectPool.put(new PooledObject());
 
 suite
     .add('Pool#create#put get', function() {
-        objectPool.put(objectPool.create());
+        objectPool.create();
     })
     // .add('new', function() {
     //     new PooledObject(null);
@@ -61,4 +66,3 @@ suite
     })
     // run async 
     .run({});
-

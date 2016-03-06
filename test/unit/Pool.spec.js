@@ -19,11 +19,12 @@ describe('Pool', function() {
         constructor: PooledObject,
         init: function(name) {
             this._name = name;
+            this._disposed = false;
 
             return this;
         },
         dispose: function() {
-            this._name = '';
+            this._name = 'disposed';
         }
     };
 
@@ -35,26 +36,29 @@ describe('Pool', function() {
         return this.get().init(name);
     };
 
-    function init() {
-        objectPool = new Pool(
-            allocatorCallback,
-            renewObjectCallback, {}
-        );
-    }
+    var disposeObjectCallback = function(obj) {
+        obj._disposed = true;
+    };
 
     beforeEach(function() {
-        init();
+        objectPool = new Pool(
+            allocatorCallback,
+            renewObjectCallback,
+            disposeObjectCallback, {
+                size: 0
+            }
+        );
     });
 
     describe('create', function() {
         it('Creates a new object.', function() {
-            let obj=objectPool.create();
+            let obj = objectPool.create();
             expect(obj instanceof PooledObject).toBe(true);
         });
         it('Reuses an object from the pool.', function() {
             objectPool.put(new PooledObject());
             let obj = objectPool.create();
-            expect(objectPool._poolCount).toBe(0);
+            expect(objectPool._freeCount).toBe(0);
             expect(obj instanceof PooledObject).toBe(true);
         });
     });
@@ -62,7 +66,7 @@ describe('Pool', function() {
     describe('get', function() {
         it('Returns null when there are no available object in the pool.', function() {
             let obj = objectPool.get();
-            expect(objectPool._poolCount).toBe(0);
+            expect(objectPool._freeCount).toBe(0);
             expect(obj).toBe(null);
         });
         it('Hot-swaps the create method to the allocatorCallback when pool goes empty.', function() {
@@ -73,14 +77,14 @@ describe('Pool', function() {
         it('Gets recycled object from the pool when there are some.', function() {
             objectPool.put(new PooledObject());
             let obj = objectPool.get();
-            expect(objectPool._poolCount).toBe(0);
+            expect(objectPool._freeCount).toBe(0);
         });
     });
 
     describe('put', function() {
         it('Adds an object to the pool count.', function() {
             objectPool.put(new PooledObject());
-            expect(objectPool._poolCount).toBe(1);
+            expect(objectPool._freeCount).toBe(1);
         });
         it('Expands the pool container when needed.', function() {
             objectPool.put(new PooledObject());
@@ -89,8 +93,16 @@ describe('Pool', function() {
             expect(objectPool._pool.length).toBe(1);
         });
         it('Hot-swaps the create method to the renewObjectCallback when pool has objects.', function() {
-            objectPool.put();
+            objectPool.put(new PooledObject());
             expect(objectPool.create).toBe(renewObjectCallback);
+        });
+    });
+
+    describe('destroy', function() {
+        it('Executes the dispose object callback of the pool.', function() {
+            let obj = new PooledObject();
+            objectPool.destroy(obj);
+            expect(obj._disposed).toBe(true);
         });
     });
 });

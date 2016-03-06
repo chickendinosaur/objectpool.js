@@ -52,7 +52,7 @@
         },
         {
             "file": "src\\Pool.js",
-            "line": 23,
+            "line": 35,
             "description": "Hotswap reference for the allocation and renew callbacks.\nSingle point of entry for user friendly api and avoids using 'arguments'.\nThis was a light-bulb that clicked on at the last second!",
             "itemtype": "method",
             "name": "create",
@@ -72,7 +72,7 @@
         },
         {
             "file": "src\\Pool.js",
-            "line": 34,
+            "line": 46,
             "description": "Container for all reusable objects.",
             "itemtype": "property",
             "name": "_pool",
@@ -81,35 +81,16 @@
         },
         {
             "file": "src\\Pool.js",
-            "line": 42,
-            "description": "Represents the current number of of objects not being used.\n_poolCount - 1 represents the index of the next object to use on get.",
+            "line": 54,
+            "description": "Represents the current number of of objects not being used.\n_freeCount - 1 represents the index of the next object to use on get.",
             "itemtype": "property",
-            "name": "_poolCount",
+            "name": "_freeCount",
             "type": "{number}",
             "class": "Pool"
         },
         {
             "file": "src\\Pool.js",
-            "line": 51,
-            "itemtype": "method",
-            "name": "_allocatorCallback",
-            "params": [
-                {
-                    "name": "",
-                    "description": "- Mimics the constructor.",
-                    "type": "*",
-                    "multiple": true
-                }
-            ],
-            "return": {
-                "description": "- A new object.",
-                "type": "*"
-            },
-            "class": "Pool"
-        },
-        {
-            "file": "src\\Pool.js",
-            "line": 58,
+            "line": 63,
             "itemtype": "method",
             "name": "_renewObjectCallback",
             "params": [
@@ -128,7 +109,7 @@
         },
         {
             "file": "src\\Pool.js",
-            "line": 65,
+            "line": 70,
             "itemtype": "method",
             "name": "_disposeObjectCallback",
             "params": [
@@ -142,7 +123,26 @@
         },
         {
             "file": "src\\Pool.js",
-            "line": 71,
+            "line": 76,
+            "itemtype": "method",
+            "name": "_allocatorCallback",
+            "params": [
+                {
+                    "name": "",
+                    "description": "- Mimics the constructor.",
+                    "type": "*",
+                    "multiple": true
+                }
+            ],
+            "return": {
+                "description": "- A new object.",
+                "type": "*"
+            },
+            "class": "Pool"
+        },
+        {
+            "file": "src\\Pool.js",
+            "line": 83,
             "description": "Total number of objects that have been created by the instance of the pool.",
             "itemtype": "property",
             "name": "_allocatedCount",
@@ -151,7 +151,7 @@
         },
         {
             "file": "src\\Pool.js",
-            "line": 89,
+            "line": 102,
             "description": "Does not create and new objects.\nHot swaps the create ref to the allocation callback for an easy api.",
             "itemtype": "method",
             "name": "get",
@@ -163,7 +163,7 @@
         },
         {
             "file": "src\\Pool.js",
-            "line": 109,
+            "line": 122,
             "description": "Adds an object to the object pool for reuse.\nHot swaps the create ref to the object reuse callback for an easy api.",
             "itemtype": "method",
             "name": "put",
@@ -175,12 +175,30 @@
                 }
             ],
             "class": "Pool"
+        },
+        {
+            "file": "src\\Pool.js",
+            "line": 138,
+            "itemtype": "method",
+            "name": "destroy",
+            "params": [
+                {
+                    "name": "UNKNOWN",
+                    "description": "",
+                    "type": "*"
+                }
+            ],
+            "class": "Pool"
         }
     ],
     "warnings": [
         {
             "message": "unknown tag: license",
             "line": " src\\Pool.js:1"
+        },
+        {
+            "message": "param name missing: {*}",
+            "line": " src\\Pool.js:138"
         },
         {
             "message": "Missing item type",
