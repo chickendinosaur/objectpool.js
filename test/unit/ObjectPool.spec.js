@@ -53,7 +53,7 @@ describe('ObjectPool', function() {
         });
         it('Reuses an object from the pool.', function() {
             objectPool.put(new PooledObject());
-            let obj = objectPool.get();
+            let obj = objectPool.create();
             expect(objectPool._poolCount).toBe(0);
             expect(obj instanceof PooledObject).toBe(true);
         });
