@@ -27,26 +27,62 @@ SOFTWARE.
 
 /**
 @class ObjectPool
-@param {function} creationCallback - Encapsulate the creation of an object outside
-of the object pool to avoid having to access 'arguments' and call apply.
+@param {function} allocatorCallback
+@param {function} renewObjectCallback
+@param {object} config
 */
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.default = ObjectPool;
-function ObjectPool(creationCallback, config) {
-    var defaultConfig = config || ObjectPool.DefaultConfig;
-
-    this._pool = defaultConfig.poolSize > 0 ? [defaultConfig.poolSize - 1] : [];
+function ObjectPool(allocatorCallback, renewObjectCallback, config) {
+    var opts = config || ObjectPool.Defaults;
 
     /**
-    Represent the current number of of objects not being used.
+    Hotswap reference for the allocation and renew callbacks.
+    Single point of entry for user friendly api and avoids using 'arguments'.
+    This was a light-bulb that clicked on at the last second!
+      @method create
+    @param {*} * - Mimics the constructor.
+    @return {*} - Newly created object or one from the pool.
+    */
+    this.create = allocatorCallback;
+
+    /**
+    Container for all reusable objects.
+      @property _pool
+    @type {array}
+    */
+    this._pool = opts.poolSize > 0 ? [opts.poolSize - 1] : [];
+
+    /**
+    Represents the current number of of objects not being used.
     _poolCount - 1 represents the index of the next object to use on get.
       @property _poolCount
     @type {number}
     */
     this._poolCount = 0;
+
+    /**
+    @method _allocatorCallback
+    @param {*} * - Mimics the constructor.
+    @return {*} - A new object.
+    */
+    this._allocatorCallback = allocatorCallback;
+
+    /**
+    @method _renewObjectCallback
+    @param {*} * - Mimics the constructor.
+    @return {*} - Object from the pool.
+    */
+    this._renewObjectCallback = renewObjectCallback;
+
+    /**
+    @method _disposeObjectCallback
+    @param {*} obj - Object to being added to the pool.
+    */
+    this._disposeObjectCallback = null;
 
     /**
     Total number of objects that have been created by the instance of the pool.
@@ -55,72 +91,44 @@ function ObjectPool(creationCallback, config) {
     */
     this._allocatedCount = 0;
 
-    this._creationCallback = creationCallback;
-
-    if (defaultConfig.poolSize > 0) {
-        this.expand(defaultConfig.poolSize - 1);
-    }
+    this._tracing = opts.tracing || ObjectPool.Defaults.tracing;
 }
 
-ObjectPool.DefaultConfig = {
-    poolSize: 0
-};
-
-ObjectPool.create = function (createCallback, config) {
-    return new ObjectPool(createCallback, config);
+ObjectPool.Defaults = {
+    tracing: false
 };
 
 ObjectPool.prototype = {
     constructor: ObjectPool,
 
     /**
-    Returns a free object if available.
-    Creates a new object and adds it to the pool if none are available.
-    Note: The current implementation is to not set any used index to null
+    The current implementation is to not set any used index to null
     to avoid an extra index look-up operation for performance.
+    Hot swaps the create ref to the allocation callback for an easy api.
       @method get
+    @return {*} - null if the pool is empty.
     */
     get: function get() {
-
-        // Check for free objects.
-        // Return an available object from the end of pool.
         if (this._poolCount > 0) {
             return this._pool[--this._poolCount];
         } else {
-            this._allocatedCount++;
-            return this._creationCallback();
+            this.create = this._allocatorCallback;
+            return null;
         }
     },
 
     /**
-        Adds an object to the object pool for reuse.
-          @method put
-        @param {*} obj
-        */
-    put: function put(obj) {
-        if (obj.dispose !== undefined) {
-            obj.dispose();
-        }
-
-        this._pool[this._poolCount++] = obj;
-    },
-
-    /**
-    Allocates new objects for the pool.
-      @method expand
-    @param {number} amount - Number of objects to add to the pool.
+    Adds an object to the object pool for reuse.
+    Hot swaps the create ref to the object reuse callback for an easy api.
+      @method put
+    @param {*} obj
     */
-    expand: function expand(amount) {
-        // Fill pool.
-        var creationCallback = this._creationCallback;
+    put: function put(obj) {
+        this._pool[this._poolCount++] = obj;
 
-        var i = 0;
-
-        for (; i < amount;) {
-            this._allocatedCount++;
-            this.put(creationCallback());
-
-            ++i;
+        // Trigger the hot-swap.
+        if (this._poolCount === 1) {
+            this.create = this._renewObjectCallback;
         }
     }
 };

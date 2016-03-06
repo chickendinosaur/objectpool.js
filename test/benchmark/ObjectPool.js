@@ -10,47 +10,49 @@ const ObjectPool = require(path.join('..', '..', 'dist', 'ObjectPool')).default;
 Setup
  */
 
-function TestClass(name) {
+function PooledObject(name) {
     this._name = name || 'Name';
+
     this.arr = [];
     this.b = {};
 }
-TestClass.prototype = {
+
+PooledObject.prototype = {
+    constructor: PooledObject,
     init: function(name) {
         this._name = name;
+
+        return this;
     },
-    release: function() {
+    dispose: function() {
         this._name = '';
     }
 };
 
-function create() {
-    new TestClass('me');
-}
-
-function creationCallback() {
-    return new TestClass();
+var allocatorCallback = function(name) {
+    return new PooledObject(name);
 };
 
-const objectPool = new ObjectPool(creationCallback, {
-    poolSize: 10,
-    minPoolSize: 0,
-    maxPoolsize: -1
-});
+var renewObjectCallback = function(name) {
+    return this.get().init(name);
+};
 
-let obj;
-const pool = objectPool._pool;
+const objectPool = new ObjectPool(
+    allocatorCallback,
+    renewObjectCallback, {}
+);
 
-// add tests 
+let obj = objectPool.create('created');
+//objectPool.put(new PooledObject());
+//objectPool.put(new PooledObject());
+
 suite
-    .add('Pool#get and put', function() {
-        obj = objectPool.get();
-        objectPool.put(obj);
+    .add('Pool#create#pool depth 0', function() {
+        objectPool.create();
     })
-    .add('Native#new', function() {
-        new TestClass();
+    .add('new', function() {
+        new PooledObject(null);
     })
-    // add listeners 
     .on('cycle', function(event) {
         console.log(String(event.target));
     })
@@ -58,4 +60,5 @@ suite
         console.log('Fastest is ' + this.filter('fastest').map('name'));
     })
     // run async 
-    .run({ 'async': true });
+    .run({});
+

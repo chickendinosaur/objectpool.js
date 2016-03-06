@@ -25,9 +25,19 @@
             "line": 28,
             "params": [
                 {
-                    "name": "creationCallback",
-                    "description": "- Encapsulate the creation of an object outside\nof the object pool to avoid having to access 'arguments' and call apply.",
+                    "name": "allocatorCallback",
+                    "description": "",
                     "type": "Function"
+                },
+                {
+                    "name": "renewObjectCallback",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "config",
+                    "description": "",
+                    "type": "Object"
                 }
             ]
         }
@@ -42,8 +52,37 @@
         },
         {
             "file": "src\\ObjectPool.js",
-            "line": 38,
-            "description": "Represent the current number of of objects not being used.\n_poolCount - 1 represents the index of the next object to use on get.",
+            "line": 37,
+            "description": "Hotswap reference for the allocation and renew callbacks.\nSingle point of entry for user friendly api and avoids using 'arguments'.\nThis was a light-bulb that clicked on at the last second!",
+            "itemtype": "method",
+            "name": "create",
+            "params": [
+                {
+                    "name": "",
+                    "description": "- Mimics the constructor.",
+                    "type": "*",
+                    "multiple": true
+                }
+            ],
+            "return": {
+                "description": "- Newly created object or one from the pool.",
+                "type": "*"
+            },
+            "class": "ObjectPool"
+        },
+        {
+            "file": "src\\ObjectPool.js",
+            "line": 48,
+            "description": "Container for all reusable objects.",
+            "itemtype": "property",
+            "name": "_pool",
+            "type": "{array}",
+            "class": "ObjectPool"
+        },
+        {
+            "file": "src\\ObjectPool.js",
+            "line": 56,
+            "description": "Represents the current number of of objects not being used.\n_poolCount - 1 represents the index of the next object to use on get.",
             "itemtype": "property",
             "name": "_poolCount",
             "type": "{number}",
@@ -51,7 +90,59 @@
         },
         {
             "file": "src\\ObjectPool.js",
-            "line": 47,
+            "line": 65,
+            "itemtype": "method",
+            "name": "_allocatorCallback",
+            "params": [
+                {
+                    "name": "",
+                    "description": "- Mimics the constructor.",
+                    "type": "*",
+                    "multiple": true
+                }
+            ],
+            "return": {
+                "description": "- A new object.",
+                "type": "*"
+            },
+            "class": "ObjectPool"
+        },
+        {
+            "file": "src\\ObjectPool.js",
+            "line": 72,
+            "itemtype": "method",
+            "name": "_renewObjectCallback",
+            "params": [
+                {
+                    "name": "",
+                    "description": "- Mimics the constructor.",
+                    "type": "*",
+                    "multiple": true
+                }
+            ],
+            "return": {
+                "description": "- Object from the pool.",
+                "type": "*"
+            },
+            "class": "ObjectPool"
+        },
+        {
+            "file": "src\\ObjectPool.js",
+            "line": 79,
+            "itemtype": "method",
+            "name": "_disposeObjectCallback",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "- Object to being added to the pool.",
+                    "type": "*"
+                }
+            ],
+            "class": "ObjectPool"
+        },
+        {
+            "file": "src\\ObjectPool.js",
+            "line": 85,
             "description": "Total number of objects that have been created by the instance of the pool.",
             "itemtype": "property",
             "name": "_allocatedCount",
@@ -60,16 +151,20 @@
         },
         {
             "file": "src\\ObjectPool.js",
-            "line": 73,
-            "description": "Returns a free object if available.\nCreates a new object and adds it to the pool if none are available.\nNote: The current implementation is to not set any used index to null\nto avoid an extra index look-up operation for performance.",
+            "line": 103,
+            "description": "The current implementation is to not set any used index to null\nto avoid an extra index look-up operation for performance.\nHot swaps the create ref to the allocation callback for an easy api.",
             "itemtype": "method",
             "name": "get",
+            "return": {
+                "description": "- null if the pool is empty.",
+                "type": "*"
+            },
             "class": "ObjectPool"
         },
         {
             "file": "src\\ObjectPool.js",
-            "line": 93,
-            "description": "Adds an object to the object pool for reuse.",
+            "line": 120,
+            "description": "Adds an object to the object pool for reuse.\nHot swaps the create ref to the object reuse callback for an easy api.",
             "itemtype": "method",
             "name": "put",
             "params": [
@@ -77,21 +172,6 @@
                     "name": "obj",
                     "description": "",
                     "type": "*"
-                }
-            ],
-            "class": "ObjectPool"
-        },
-        {
-            "file": "src\\ObjectPool.js",
-            "line": 107,
-            "description": "Allocates new objects for the pool.",
-            "itemtype": "method",
-            "name": "expand",
-            "params": [
-                {
-                    "name": "amount",
-                    "description": "- Number of objects to add to the pool.",
-                    "type": "Number"
                 }
             ],
             "class": "ObjectPool"
