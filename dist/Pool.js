@@ -105,7 +105,7 @@ Pool.prototype = {
     constructor: Pool,
 
     /**
-    Does not create and new objects.
+    Does not create any new objects.
     Hot swaps the create ref to the allocation callback for an easy api.
       @method get
     @return {*} - object from the pool or null if empty.
@@ -126,25 +126,18 @@ Pool.prototype = {
     /**
     Adds an object to the object pool for reuse.
     Hot swaps the create ref to the object reuse callback for an easy api.
-      @method put
+    Disposes the object.
+      @method destroy
     @param {*} obj
     */
-    put: function put(obj) {
+    destroy: function destroy(obj) {
         this._pool[this._freeCount++] = obj;
 
         // Trigger the hot-swap.
         if (this._freeCount === 1) {
             this.create = this._renewObjectCallback;
         }
-    },
 
-    /**
-    @method destroy
-    @param {*}
-    */
-    destroy: function destroy(obj) {
         this._disposeObjectCallback(obj);
-
-        this.put(obj);
     }
 };

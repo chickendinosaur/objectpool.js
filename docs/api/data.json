@@ -152,7 +152,7 @@
         {
             "file": "src\\Pool.js",
             "line": 116,
-            "description": "Does not create and new objects.\nHot swaps the create ref to the allocation callback for an easy api.",
+            "description": "Does not create any new objects.\nHot swaps the create ref to the allocation callback for an easy api.",
             "itemtype": "method",
             "name": "get",
             "return": {
@@ -164,26 +164,12 @@
         {
             "file": "src\\Pool.js",
             "line": 136,
-            "description": "Adds an object to the object pool for reuse.\nHot swaps the create ref to the object reuse callback for an easy api.",
-            "itemtype": "method",
-            "name": "put",
-            "params": [
-                {
-                    "name": "obj",
-                    "description": "",
-                    "type": "*"
-                }
-            ],
-            "class": "Pool"
-        },
-        {
-            "file": "src\\Pool.js",
-            "line": 152,
+            "description": "Adds an object to the object pool for reuse.\nHot swaps the create ref to the object reuse callback for an easy api.\nDisposes the object.",
             "itemtype": "method",
             "name": "destroy",
             "params": [
                 {
-                    "name": "UNKNOWN",
+                    "name": "obj",
                     "description": "",
                     "type": "*"
                 }
@@ -195,10 +181,6 @@
         {
             "message": "unknown tag: license",
             "line": " src\\Pool.js:1"
-        },
-        {
-            "message": "param name missing: {*}",
-            "line": " src\\Pool.js:152"
         },
         {
             "message": "Missing item type",

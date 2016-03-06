@@ -12,18 +12,21 @@ Setup
 
 function PooledObject(name) {
     this._name = name || 'Name';
+    this._disposed = false;
 
     this.arr = this.arr || [];
     this.b = this.b || {};
 }
 
 PooledObject.prototype = {
+    constructor: PooledObject,
     init: function(name) {
         this._name = name;
+
+        return this;
     },
-    constructor: PooledObject,
     dispose: function() {
-        this._name = '';
+        this._name = 'disposed';
     }
 };
 
@@ -49,11 +52,12 @@ const objectPool = new Pool(
 );
 
 //let obj = objectPool.create('created');
-//objectPool.put(new PooledObject());
+//objectPool.destroy(new PooledObject());
 
 suite
     .add('Pool#create#put get', function() {
-        objectPool.create();
+        obj=objectPool.create();
+        objectPool.destroy(obj);
     })
     // .add('new', function() {
     //     new PooledObject(null);
