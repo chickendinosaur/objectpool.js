@@ -1,17 +1,24 @@
-Maintains a collection of an objects of a single type for reuse. 
+## Problem
 
-#Problem
+The reason behind this project as well as what I see as other people's attempts at object pooling in JavaScript is my infatuation with smooth framerate and speed which can be interrupted by the garbage collector due to thrashing. As I began my search for pooling libraries the implementation of the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed, belonged as part of a game library, was very minimal with no tracking support, or seemed like there had to be a way to increase the creation/resuse speed. There had to be a better way to enable a completely agnostic approach.
 
-The reason behind this project as well as other people's attempts at object pooling in JavaScript is my infatuation with smooth framerate and speed. As I began my search for JavaScript pooling libraries the implementation the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed of, and seemed like there had to be a way to increase the creation/resuse speed. 
+## Approach
 
-<pre><code>test</code></pre>
+1) Maintain a completely agnostic approach to be used with anything.
 
-# Approach
+2) Simple usage api.
 
-After firing up a new project and becnhmark.js I was on my way. throughout the process of getting to a base api while maintaining the performance I was after my knowledge of how JavaScript is interpreted has grown ten-fold.
+3) Reuse objects as fast as possible within reason of the complexity of the other points.
 
-# Solution
+4) Encorporate full debugging functionality, including when an object is created using the 'new' keyword without the pool while holding true to #1. This one really opened my eyes to the full power of JavaScript.
 
+5) Ability to create and destroy pools across the application. Object pool of object pools? What the... This would be for gaming applications in a real world scenario. The functionality will be there to allow for lengthy games to free up unused allocated memory ex. level changes or application section changes where those object type are no longer used.
+
+## Conclusion
+
+Throughout the process of getting to a base api while maintaining the key points laid out here my knowledge of the inner workings of JavaScript as well as more fluent ways to approach creating objects has grown ten-fold. A lot of gears were broken and .js files were harmed during the making of this project. If you learned something useful or happen like this project feel free to throw me a star to show your appreciation. Thank you!
+
+See Usage below for examples.
 
 ---  
 
