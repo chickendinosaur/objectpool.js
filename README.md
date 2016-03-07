@@ -14,7 +14,7 @@ The reason behind this project as well as what I see as other people's attempts 
 
 3) Reuse objects as fast as possible within reason of the complexity of the other points.
 
-4) Encorporate full debugging functionality, including when an object is created using the 'new' keyword without the pool while holding true to #1. This one really opened my eyes to the full power of JavaScript.
+4) Encorporate full debugging functionality, including when an object is created using the 'new' keyword without the pool while holding true to #1. Welcome to the true magic of JavaScript.
 
 5) Ability to create and destroy pools across the application. Object pool of object pools? What the... This would be for gaming applications in a real world scenario. The functionality will be there to allow for lengthy games to free up unused allocated memory ex. level changes or application section changes where those object type are no longer used.
 
