@@ -4,11 +4,11 @@ Creates and maintains a collection of an objects for reuse.
 
 ## The Problem
 
-The reason behind this project as well as what I see as other people's attempts at object pooling in JavaScript is my infatuation with smooth framerate and speed which can be interrupted by the garbage collector due to thrashing. As I began my search for pooling libraries the implementation of the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed, belonged as part of a game library, was very minimal with no tracking support, or seemed like there had to be a way to increase the creation/resuse speed. There had to be a better way to enable a completely agnostic approach.
+The reason behind this project as well as what I see as other people's attempts at object pooling in the realm of JavaScript is the infatuation with smooth framerate and speed which can be interrupted by the garbage collector due to thrashing. As I began my search for pooling libraries, the implementations of the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed, belonged as part of a game library, were very minimal with no tracking support, or seemed like there had to be a way to increase the creation/resuse speed.
 
 ## Approach
 
-1) Maintain a completely agnostic approach to be used with anything.
+1) Maintain a completely agnostic approach to be used with anything. No requirement to alter/rewrite the source a class or module to comply with any pool functionality!
 
 2) Simple usage api.
 
@@ -22,7 +22,7 @@ The reason behind this project as well as what I see as other people's attempts 
 
 Throughout the process of getting to a base api while maintaining the key points laid out here my knowledge of the inner workings of JavaScript as well as more fluent ways to approach creating objects has grown ten-fold. A lot of gears were broken and .js files were harmed during the making of this project. If you learned something useful or happen like this project feel free to throw me a star to show your appreciation. Thank you!
 
-See Usage below for examples.
+For examples, see Usage below.
 
 ---  
 
@@ -43,6 +43,66 @@ npm install @chickendinosaur/pool
 
 ## Usage
 ---  
+
+# Best Practices
+
+### Dispose Method
+
+The best way I found to make a universal dispose method for most decent implementations of an object pool is to add an 'obj' paramter and then just do an undefined check to use either the 'obj' or 'this'. This will allow the ability to hand off the dispose method as a callback to save and extra function call for performance when recycling the object.
+
+#### Performance Tips
+
+If a property is not referencing another 'object' or collection you can avoid having to reset it since most likely it will be getting re-initialized in the init of the object.
+
+Do not forget to call the parent's dispose method if inheriting from another object. 
+
+<pre>
+<code>
+class Person {
+    constructor(name) {
+        this._name = name;
+    }
+
+    init(name) {
+        this._name = name;
+    }
+
+    dispose(obj) {
+        const thisRef = obj === undefined ? this : obj;
+    }
+}
+
+class Gunner extends Person {
+    constructor(name) {
+        super(name);
+
+        this._gunType = 'Machine Gun';
+        this._bullets = [50];
+    }
+
+    dispose(obj) {
+        // Dispose parent.
+        super.dispose(obj);
+
+        // Efficient access to the object to dispose of.
+        const thisRef = obj === undefined ? this : obj;
+
+        // Best way to reuse arrays.
+        const bullets = thisRef._bullets;
+
+        let n = bullets.length;
+
+        for (; n > 0;) {
+            bullets.pop();
+
+            --n;
+        }
+    }
+}
+</code>
+</pre>
+
+---
 
 # Development  
 
