@@ -45,6 +45,10 @@ describe('Pool', function() {
             allocatorCallback,
             renewObjectCallback,
             disposeObjectCallback, {
+                debug:{
+                    track: PooledObject,
+                    enable: true
+                },
                 size: 0
             }
         );

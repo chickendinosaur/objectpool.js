@@ -44,57 +44,27 @@ npm install @chickendinosaur/pool
 ## Usage
 ---  
 
-# Best Practices
+## Tips
 
-#### @method dispose
+#### Performance
 
-The best way I found to make a universal dispose method for most decent implementations of an object pool is to add an 'obj' paramter and then just do an undefined check to use either the 'obj' or 'this'. This will allow the ability to hand off the dispose method as a callback to save and extra function call for performance when recycling the object.
+- Although all of my examples are in ES6 JavaScript, the current transpilation methods greatly affect performance when using classes; especially using 'super'. The performance hit will be invoked in the object's 'constructor', 'init', and 'dispose' so keep this in mind. If you're interested in performance comparison against other object pools please consider comparing apples to apples and use ES6 or ES5 for both.
 
-If a property is not referencing another 'object' or collection you can avoid having to reset it since most likely it will be getting re-initialized in the init of the object.
+#### Creating dispose methods
 
-Do not forget to call the parent's dispose method if inheriting from another object. 
+ - The best way I found to make a universal dispose method for most decent implementations of an object pool is to add an 'obj' paramter and then just do an undefined check to use either the 'obj' or 'this'. This will allow for the ability to dispose using the 'obj.dispose()' method as well as being able to hand off the dispose method as a callback to save and extra function call for performance when recycling the object without having to worry about scope.
+
+- If a property is not referencing another 'object' or collection you can avoid having to reset it since most likely it will be getting re-initialized in the init of the object.
+
+- Do not forget to call the parent's dispose method if inheriting from another object. 
 
 ```javascript 
-class Person {
-    constructor(name) {
-        this._name = name;
-    }
+dispose(obj) {
+    // Efficient access to the object to dispose of.
+    const thisRef = obj === undefined ? this : obj;
 
-    init(name) {
-        this._name = name;
-    }
-
-    dispose(obj) {
-        const thisRef = obj === undefined ? this : obj;
-    }
-}
-
-class Gunner extends Person {
-    constructor(name) {
-        super(name);
-
-        this._gunType = 'Machine Gun';
-        this._bullets = [50];
-    }
-
-    dispose(obj) {
-        // Dispose parent.
-        super.dispose(obj);
-
-        // Efficient access to the object to dispose of.
-        const thisRef = obj === undefined ? this : obj;
-
-        // Best way to reuse arrays.
-        const bullets = thisRef._bullets;
-
-        let n = bullets.length;
-
-        for (; n > 0;) {
-            bullets.pop();
-
-            --n;
-        }
-    }
+    // Dispose parent.
+    super.dispose(thisRef);
 }
 ```
 
