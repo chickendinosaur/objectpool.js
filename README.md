@@ -56,8 +56,7 @@ If a property is not referencing another 'object' or collection you can avoid ha
 
 Do not forget to call the parent's dispose method if inheriting from another object. 
 
-<pre>
-<code>
+```javascript 
 class Person {
     constructor(name) {
         this._name = name;
@@ -99,8 +98,7 @@ class Gunner extends Person {
         }
     }
 }
-</code>
-</pre>
+```
 
 ---
 
