@@ -1,3 +1,5 @@
+# Description  
+
 Creates and maintains a collection of an objects for reuse.
 
 ## The Problem
@@ -28,6 +30,8 @@ See Usage below for examples.
 
 John Pittman  
 john@chickendinosaur.com  
+
+---
 
 # Getting Started  
 
