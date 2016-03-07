@@ -25,6 +25,22 @@ SOFTWARE.
 
 'use strict';
 
+import EventEmitter from '@chickendinosaur/eventemitter';
+import Event from '@chickendinosaur/eventemitter/Event';
+
+/*
+Events
+*/
+
+function StatsChangedEvent(type){
+    Event.call(this, type);
+
+    this.allocated = null;
+    this.free = null;
+    this.used = null;
+    this.size = null;
+}
+
 /**
 @class Pool
 @param {function} allocatorCallback
@@ -60,21 +76,24 @@ export default function Pool(
     /**
     Container for all reusable objects.
 
+    @private
     @property _pool
     @type {array}
     */
-    this._pool = opts.size > 0 ? [opts.size - 1] : [];
+    this._pool = [];
 
     /**
     Represents the current number of of objects not being used.
     _freeCount - 1 represents the index of the next object to use on get.
 
+    @private
     @property _freeCount
     @type {number}
     */
     this._freeCount = 0;
 
     /**
+    @private
     @method _renewObjectCallback
     @param {*} * - Mimics the constructor.
     @return {*} - Object from the pool.
@@ -82,12 +101,14 @@ export default function Pool(
     this._renewObjectCallback = renewObjectCallback;
 
     /**
+    @private
     @method _disposeObjectCallback
     @param {*} obj - Object to being added to the pool.
     */
     this._disposeObjectCallback = disposeObjectCallback;
 
     /**
+    @private
     @method _allocatorCallback
     @param {*} * - Mimics the constructor.
     @return {*} - A new object.
@@ -95,24 +116,44 @@ export default function Pool(
     this._allocatorCallback = allocatorCallback;
 
     /**
+    @private
+    @property _debug
+    @type {boolean}
+    */
+    this._debug = null;
+
+    /**
     Total number of objects that have been created by the instance of the pool.
 
+    @private
     @property _allocatedCount
     @type {number}
     */
     this._allocatedCount = 0;
 
-    this._tracking = opts.tracking || Pool.Defaults.tracking;
+    /*
+    Initialize all public facing values.
+    */
+
+    /**
+    @property debug
+    @type {boolean}
+    */
+    this.debug = opts.debug;
+
+    /*
+    Events
+    */
+    this.Events = {
+        new StatsChangedEvent('statschanged')
+    };
 }
 
 Pool.Defaults = {
-    size: 0,
-    tracking: false
+    debug: true,
 };
 
 Pool.prototype = {
-    constructor: Pool,
-
     /**
     Does not create any new objects.
     Hot swaps the create ref to the allocation callback for an easy api.
@@ -124,7 +165,11 @@ Pool.prototype = {
         if (this._freeCount > 0) {
             // Hot-swap
             if (this._freeCount === 1) {
-                this.create = this._allocatorCallback;
+                if (this._debug) {
+                    this.create = this._allocatorCallback_debug;
+                } else {
+                    this.create = this._allocatorCallback;
+                }
             }
 
             return this._pool[--this._freeCount];
@@ -144,11 +189,71 @@ Pool.prototype = {
     destroy: function(obj) {
         this._pool[this._freeCount++] = obj;
 
-        // Trigger the hot-swap.
+        // Trigger hot-swap.
         if (this._freeCount === 1) {
             this.create = this._renewObjectCallback;
         }
 
         this._disposeObjectCallback(obj);
+    },
+
+    /**
+    Mimics _allocatorCallback.
+    Applies extra debug functionality.
+    Note: Since allocation is done in a separate method the is not internally
+    created by the object pool, the only way to track allocation is be wrapping
+    the allocatorCallback and doing debug logic within the wrapper.
+
+    @method _allocatorCallback_debug
+    @return {*} - object from the pool or null if empty.
+    */
+    _allocatorCallback_debug: function() {
+        this._allocatedCount++;
+
+        return this._allocatorCallback.apply(this, arguments);
+    },
+
+    /**
+    Dereferences/Clears all objects in the pool.
+
+    @method drain
+    */
+    drain: function() {
+        const pool = this._pool;
+        let n = this._pool.length;
+
+        for (; n > 0;) {
+            --n;
+
+            pool.pop();
+        }
+    },
+
+    /**
+    Setter.
+    Enables or disables object allocation tracing.
+    Hot-swaps the allocator callback with the debug one.
+
+    @method debug
+    */
+    set debug: function(value) {
+        this._debug = value;
+
+        // Hot-swap
+        if (this.create === this._allocatorCallback) {
+            this.create = this._allocatorCallback_debug;
+        }
+    }
+
+    onStatChanged:function(){
+        this.triggerEvent(statChanged)
     }
 };
+
+// how to overwrite object constructor for debugging.
+classRefCopy=classRef;
+classRef=function(){
+    thisRef._allocatedCount++;
+    
+    classRefCopy.apply(this.arguments);
+}

@@ -33,11 +33,9 @@ PooledObject.prototype = {
 var allocatorCallback = function(name) {
     return new PooledObject(name);
 };
-
 var renewObjectCallback = function(name) {
-    return this.get().constructor(name);
+    return this.get().init(name);
 };
-
 var disposeObjectCallback = function(obj) {
     obj._disposed = true;
 };
@@ -55,7 +53,7 @@ const objectPool = new Pool(
 //objectPool.destroy(new PooledObject());
 
 suite
-    .add('Pool#create#put get', function() {
+    .add('Pool', function() {
         obj=objectPool.create();
         objectPool.destroy(obj);
     })

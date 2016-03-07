@@ -1,5 +1,18 @@
 Maintains a collection of an objects of a single type for reuse. 
 
+#Problem
+
+The reason behind this project as well as other people's attempts at object pooling in JavaScript is my infatuation with smooth framerate and speed. As I began my search for JavaScript pooling libraries the implementation the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed of, and seemed like there had to be a way to increase the creation/resuse speed. 
+
+<pre><code>test</code></pre>
+
+# Approach
+
+After firing up a new project and becnhmark.js I was on my way. throughout the process of getting to a base api while maintaining the performance I was after my knowledge of how JavaScript is interpreted has grown ten-fold.
+
+# Solution
+
+
 ---  
 
 # Author  
