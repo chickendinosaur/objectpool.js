@@ -46,7 +46,7 @@ npm install @chickendinosaur/pool
 
 # Best Practices
 
-#### Dispose method
+#### @method dispose
 
 The best way I found to make a universal dispose method for most decent implementations of an object pool is to add an 'obj' paramter and then just do an undefined check to use either the 'obj' or 'this'. This will allow the ability to hand off the dispose method as a callback to save and extra function call for performance when recycling the object.
 
