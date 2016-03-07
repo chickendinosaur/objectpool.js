@@ -1,4 +1,6 @@
-## Problem
+Creates and maintains a collection of an objects for reuse.
+
+## The Problem
 
 The reason behind this project as well as what I see as other people's attempts at object pooling in JavaScript is my infatuation with smooth framerate and speed which can be interrupted by the garbage collector due to thrashing. As I began my search for pooling libraries the implementation of the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed, belonged as part of a game library, was very minimal with no tracking support, or seemed like there had to be a way to increase the creation/resuse speed. There had to be a better way to enable a completely agnostic approach.
 
