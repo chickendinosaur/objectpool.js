@@ -1,3 +1,5 @@
+NOTE: Currently still in early stages of mapping out the project. A lot may change from the current state.
+
 # Description  
 
 Creates and maintains a collection of an objects for reuse.
@@ -64,7 +66,7 @@ dispose(obj) {
     const thisRef = obj === undefined ? this : obj;
 
     // Dispose parent.
-    super.dispose(thisRef);
+    this.super.dispose(thisRef);
 }
 ```
 
