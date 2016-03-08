@@ -42,6 +42,49 @@ function StatsChangedEvent(type){
 }
 
 /**
+@example
+class Person {
+    constructor(name) {
+        this._name = name;
+    }
+
+    init(name) {
+        this._name = name;
+    }
+
+    dispose(obj) {
+        const thisRef = obj === undefined ? this : obj;
+    }
+}
+
+class Gunner extends Person {
+    constructor(name) {
+        super(name);
+
+        this._gunType = 'Machine Gun';
+        this._bullets = [50];
+    }
+
+    dispose(obj) {
+        // Efficient access to the object to dispose of.
+        const thisRef = obj === undefined ? this : obj;
+
+        // Dispose parent.
+        super.dispose(thisRef);
+
+        // Best way to reuse arrays.
+        const bullets = thisRef._bullets;
+
+        let n = bullets.length;
+
+        for (; n > 0;) {
+            bullets.pop();
+
+            --n;
+        }
+    }
+}
+
 @class Pool
 @param {function} allocatorCallback
 @param {function} renewObjectCallback
@@ -172,11 +215,11 @@ Pool.prototype = {
                 }
             }
 
-            return this._pool[--this._freeCount];
+            return this._pool.pop();
         } else {
             return null;
         }
-    },
+    }, 
 
     /**
     Adds an object to the object pool for reuse.
@@ -198,6 +241,7 @@ Pool.prototype = {
     },
 
     /**
+    Note: Only do this for literal primitives.
     Mimics _allocatorCallback.
     Applies extra debug functionality.
     Note: Since allocation is done in a separate method the is not internally
@@ -243,18 +287,19 @@ Pool.prototype = {
         if (this.create === this._allocatorCallback) {
             this.create = this._allocatorCallback_debug;
         }
-    }
+    },
 
     onStatChanged:function(){
-        this.triggerEvent(statChanged)
+        this.triggerEvent(statChanged);
     }
 };
 
 // how to overwrite object constructor for debugging.
-classRefCopy=classRef;
-classRef=function(){
-    thisRef._allocatedCount++;
+// Have to hve direct access to the class definition to do this.
+// classRefCopy=classRef;
+// classRef=function(){
+//     thisRef._allocatedCount++;
     
-    classRefCopy.apply(this.arguments);
-}
+//     classRefCopy.apply(this.arguments);
+// }
 
