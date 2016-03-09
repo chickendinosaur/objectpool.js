@@ -131,11 +131,11 @@ gunner = GunnerPool.create('Another Gunner Guy');
 
 - Although all of my examples are in ES6 JavaScript, the current transpilation methods greatly affect performance when using classes; especially using 'super'. The performance hit will be invoked in the object's 'constructor', 'init', and 'dispose' so keep this in mind. If you're interested in performance comparison against other object pools please consider comparing apples to apples and use ES6 or ES5 for both.
 
+- When there are no large objects or references to reset in the dispose method then construct the pool with 'null' as the disposeCallback parameter. This will save some good performance when destroying the object.
+
 #### Creating dispose and init methods
 
-- If a property is not referencing another 'object' or collection you can avoid having to reset it since most likely it will be getting re-initialized in the init of the object.
-
-- Continuing from the point above, if there are no large objects or references to reset in the dispose method then construct the pool with 'null' as the disposeCallback parameter. This will save some good performance when destroying the object.
+- If a property is not referencing another 'object' or collection you can avoid having to reset it since all primitive properties should be getting reset in the init method.
 
 - Do not forget to call the parent's dispose method if inheriting from another object. 
 
