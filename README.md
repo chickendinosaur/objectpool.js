@@ -133,6 +133,20 @@ gunner = GunnerPool.create('Another Gunner Guy');
 
 - When there are no large objects or references to reset in the dispose method then construct the pool with 'null' as the disposeCallback parameter. This will save some good performance when destroying the object.
 
+```javascript 
+export default new Pool(
+    function(name) {
+        // If the object requires any defaults this is a great effective way to do that.
+        return new Gunner(name || 'Billy Bob');
+    },
+    function(name) {
+        return this.pull().init(name);
+    },
+    // When the dispose method is empty.
+    null
+);
+```
+
 #### Creating dispose and init methods
 
 - If a property is not referencing another 'object' or collection you can avoid having to reset it since all primitive properties should be getting reset in the init method.
