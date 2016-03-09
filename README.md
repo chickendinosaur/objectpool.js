@@ -140,12 +140,14 @@ gunner = GunnerPool.create('Another Gunner Guy');
 - Do not forget to call the parent's dispose method if inheriting from another object. 
 
 ```javascript 
-dispose(obj) {
-    // Efficient access to the object to dispose of.
-    const thisRef = obj === undefined ? this : obj;
+init() {
+    // Re-init the parent.
+    super.init();
+}
 
+dispose() {
     // Dispose parent.
-    this.super.dispose(thisRef);
+    this.super.dispose();
 }
 ```
 
