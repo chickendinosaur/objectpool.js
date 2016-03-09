@@ -74,8 +74,5 @@
     "jasmine-reporters": "^2.1.1",
     "run-sequence": "^1.1.5",
     "yuidocjs": "*"
-  },
-  "dependencies": {
-    "@chickendinosaur/eventemitter": "^9.1.0"
   }
 }

@@ -6,7 +6,7 @@ Creates and maintains a collection of an objects for reuse.
 
 ## The Problem
 
-The reason behind this project as well as what I see as other people's attempts at object pooling in the realm of JavaScript is the infatuation with smooth framerate and speed which can be interrupted by the garbage collector due to thrashing. As I began my search for pooling libraries, the implementations of the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed, belonged as part of a game library, were very minimal with no tracking support, or seemed like there had to be a way to increase the creation/resuse speed.
+The reason behind this project as well as what I see as other people's attempts at object pooling in the realm of JavaScript is the infatuation with smooth framerate which can be interrupted by the garbage collector due to thrashing. As I began my search for pooling libraries, the implementations of the ones I evaluated were either tightly coupled to the object itself, required a strict way to define how the object is disposed, belonged as part of a game library, or seemed slow on reuse.
 
 ## Approach
 
@@ -16,13 +16,13 @@ The reason behind this project as well as what I see as other people's attempts 
 
 3) Reuse objects as fast as possible within reason of the complexity of the other points.
 
-4) Encorporate full debugging functionality, including when an object is created using the 'new' keyword without the pool while holding true to #1. Welcome to the true magic of JavaScript.
-
-5) Ability to create and destroy pools across the application. Object pool of object pools? What the... This would be for gaming applications in a real world scenario. The functionality will be there to allow for lengthy games to free up unused allocated memory ex. level changes or application section changes where those object type are no longer used.
+4) Ability to manage and track pools across the application. Will be able to hot swap debug mode. (Currently not available due to having to move on temporarily)
 
 ## Conclusion
 
-Throughout the process of getting to a base api while maintaining the key points laid out here my knowledge of the inner workings of JavaScript as well as more fluent ways to approach creating objects has grown ten-fold. A lot of gears were broken and .js files were harmed during the making of this project. If you learned something useful or happen like this project feel free to throw me a star to show your appreciation. Thank you!
+The main performance boost I was able to pick up after spinning around and around was to ditch using .apply(this, arguments) which was a light bulb that went off randomly to hot-swap callbacks. The only way to implement full tracking of any object that gets created, event without using the pool, would be to tie the pool directly to the object's source file; although it's a super cool feature (can't tracking array/object literal creation though) it require people to go through hell to implement pooling for objects not contained themselves a.k.a forking + altering. So the end-game method for pool usage that I came up with is to create pool modules and use them in place of the actual object ince the pool module already imports the object dependency.
+
+If you learned something useful or happen like this project feel free to throw me a star to show your appreciation. Stars generate happiness and happiness generates better code. Thank you!
 
 For examples, see Usage below.
 
@@ -44,6 +44,87 @@ john@chickendinosaur.com
 npm install @chickendinosaur/pool  
 
 ## Usage
+
+### Pool
+```javascript 
+// Create a parent class.
+
+class Person {
+    constructor(name) {
+        this._name = name;
+    }
+
+    init(name) {
+        this._name = name;
+    }
+
+    dispose() {}
+}
+
+// Create a child class.
+
+class Gunner extends Person {
+    constructor(name) {
+        super(name);
+
+        this._gunType = 'Machine Gun';
+        this._bullets = [50];
+    }
+
+    // Don't forget to call parent's init if there is one.
+    init(name) {
+        super.init(name);
+    }
+
+    dispose() {
+        // Dispose parent.
+        super.dispose();
+
+        // Reuse the array.
+        const bullets = this._bullets;
+
+        let n = bullets.length;
+
+        for (; n > 0;) {
+            bullets.pop();
+
+            --n;
+        }
+    }
+}
+
+// Create a GunnerPool.js file.
+// Create and export a new pool to contain Gunners.
+
+import Pool from '@chickendinosaur/pool/Pool';
+import Gunner from './GunnerPool.js';
+
+export default new Pool(
+    function(name) {
+        return new Gunner(name);
+        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)
+        // return new Gunner( name || 'Billy Bob');
+    },
+    function(name) {
+        return this.pull().init(name);
+    },
+    // The dispose callback parameter also accepts null whick will only
+    // use the init callback when calling create();
+    function(obj) {
+        obj.dispose();
+    }
+);
+
+// Use the pool anywhere.
+
+import GunnerPool from './GunnerPool.js';
+
+let gunner = GunnerPool.create('Crazy Gunner Guy');
+
+GunnerPool.destroy(gunner);
+
+gunner = GunnerPool.create('Another Gunner Guy');
+```
 ---  
 
 ## Tips

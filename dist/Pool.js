@@ -111,36 +111,28 @@ gunner = GunnerPool.create('Another Gunner Guy');
 @param {function|null} disposeObjectCallback
 @param {object} config
 */
-export default function Pool(
-    allocatorCallback,
-    renewObjectCallback,
-    disposeObjectCallback,
-    config
-) {
-    if (typeof allocatorCallback !== 'function')
-        throw new TypeError();
-    else if (typeof renewObjectCallback !== 'function')
-        throw new TypeError();
-    else if (typeof disposeObjectCallback !== 'function' &&
-        typeof disposeObjectCallback !== null)
-        throw new TypeError();
 
-    const opts = config || {};
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = Pool;
+function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback, config) {
+    if (typeof allocatorCallback !== 'function') throw new TypeError();else if (typeof renewObjectCallback !== 'function') throw new TypeError();else if (typeof disposeObjectCallback !== 'function' && typeof disposeObjectCallback !== null) throw new TypeError();
+
+    var opts = config || {};
 
     /**
     Hotswap reference for the allocation and renew callbacks.
     Single point of entry for user friendly api and avoids using .apply(this, arguments).
-
-    @method create
+      @method create
     @param {*} * - Mimics the constructor.
     @return {*} - Newly created object or one from the pool.
     */
-    this.create = allocatorCallback
+    this.create = allocatorCallback;
 
     /**
     Container for all reusable objects.
-
-    @private
+      @private
     @property _pool
     @type {array}
     */
@@ -179,8 +171,8 @@ Hot swaps the create ref to the allocation callback for an easy api.
 @method pull
 @return {*} - object from the pool or null if empty.
 */
-Pool.prototype.pull = function() {
-    const pool = this._pool;
+Pool.prototype.pull = function () {
+    var pool = this._pool;
 
     // Hot-swap
     if (pool.length === 1) {
@@ -198,8 +190,8 @@ Disposes the object.
 @method destroy
 @param {*} obj
 */
-Pool.prototype.destroy = function(obj) {
-    const pool = this._pool;
+Pool.prototype.destroy = function (obj) {
+    var pool = this._pool;
 
     // Put in the pool
     pool[pool.length] = obj;
@@ -220,6 +212,6 @@ Dereferences/Clears all objects in the pool.
 
 @method drain
 */
-Pool.prototype.drain = function() {
+Pool.prototype.drain = function () {
     while (this.pull() !== undefined) {}
 };
