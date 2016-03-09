@@ -14,52 +14,58 @@ function PooledObject(name) {
     this._name = name || 'Name';
     this._disposed = false;
 
-    this.arr = this.arr || [];
-    this.b = this.b || {};
+    this._obj = {};
 }
 
 PooledObject.prototype = {
     constructor: PooledObject,
     init: function(name) {
         this._name = name;
+        this._obj = {};
 
         return this;
     },
     dispose: function() {
-        this._name = 'disposed';
+        this._obj = null;
     }
 };
 
 var allocatorCallback = function(name) {
     return new PooledObject(name);
 };
+
 var renewObjectCallback = function(name) {
-    return this.get().init(name);
+    return this.pull().init(name);
 };
+
 var disposeObjectCallback = function(obj) {
-    obj._disposed = true;
+    obj.dispose();
 };
 
 const objectPool = new Pool(
     allocatorCallback,
     renewObjectCallback,
-    disposeObjectCallback, {
-        size: 0,
-        tracing: false
-    }
+    disposeObjectCallback, {}
 );
 
-//let obj = objectPool.create('created');
-//objectPool.destroy(new PooledObject());
+const objectPoolLight = new Pool(
+    allocatorCallback,
+    renewObjectCallback,
+    null, {}
+);
+
+objectPool.destroy(new PooledObject());
 
 suite
-    .add('Pool', function() {
-        obj=objectPool.create();
-        objectPool.destroy(obj);
+    .add('Pooled', function() {
+        objectPool.destroy(objectPool.create('obj'));
     })
-    // .add('new', function() {
-    //     new PooledObject(null);
-    // })
+    .add('Pooled', function() {
+        objectPoolLight.destroy(objectPoolLight.create('obj'));
+    })
+    .add('new', function() {
+        new PooledObject(null);
+    })
     .on('cycle', function(event) {
         console.log(String(event.target));
     })

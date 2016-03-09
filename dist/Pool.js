@@ -117,8 +117,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = Pool;
 function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback, config) {
-    if (typeof allocatorCallback !== 'function') throw new TypeError();else if (typeof renewObjectCallback !== 'function') throw new TypeError();else if (typeof disposeObjectCallback !== 'function' && typeof disposeObjectCallback !== null) throw new TypeError();
-
     var opts = config || {};
 
     /**
@@ -128,7 +126,7 @@ function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback, con
     @param {*} * - Mimics the constructor.
     @return {*} - Newly created object or one from the pool.
     */
-    this.create = allocatorCallback;
+    this.create = null;
 
     /**
     Container for all reusable objects.
@@ -144,14 +142,14 @@ function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback, con
     @param {*} * - Mimics the constructor.
     @return {*} - Object from the pool.
     */
-    this._renewObjectCallback = renewObjectCallback;
+    this._renewObjectCallback = null;
 
     /**
     @private
     @method _disposeObjectCallback
-    @param {*} obj - Object to being added to the pool.
+    @param {*} obj - Object being added to the pool.
     */
-    this._disposeObjectCallback = disposeObjectCallback;
+    this._disposeObjectCallback = null;
 
     /**
     @private
@@ -159,10 +157,28 @@ function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback, con
     @param {*} * - Mimics the constructor.
     @return {*} - A new object.
     */
-    this._allocatorCallback = allocatorCallback;
+    this._allocatorCallback = null;
+
+    // Use the init method to encapsulate argument type checking.
+    this.init(allocatorCallback, renewObjectCallback, disposeObjectCallback, config);
 }
 
 Pool.prototype.constructor = Pool;
+
+Pool.prototype.init = function (allocatorCallback, renewObjectCallback, disposeObjectCallback, config) {
+    if (typeof allocatorCallback !== 'function') throw new TypeError();else if (typeof renewObjectCallback !== 'function') throw new TypeError();else if (typeof disposeObjectCallback !== 'function' && disposeObjectCallback) throw new TypeError();
+
+    this.create = allocatorCallback;
+    this._allocatorCallback = allocatorCallback;
+    this._renewObjectCallback = renewObjectCallback;
+    this._disposeObjectCallback = disposeObjectCallback;
+};
+
+Pool.prototype.dispose = function () {
+    // Need to replace with an array pool eventually.
+    var pool = this._pool;
+    while (pool.pop() !== undefined) {}
+};
 
 /**
 Does not create any new objects.
@@ -202,7 +218,7 @@ Pool.prototype.destroy = function (obj) {
     }
 
     // Dispose the object
-    if (this._disposeObjectCallback !== undefined) {
+    if (this._disposeObjectCallback) {
         this._disposeObjectCallback(obj);
     }
 };
