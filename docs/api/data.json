@@ -40,7 +40,7 @@
             "file": "src\\Pool.js",
             "line": 28,
             "example": [
-                "\n// Stand-alone pool creation.\n// Create a GunnerPool.js file.\n// Create and export a new pool to contain Gunners.\n\nimport Pool from '@chickendinosaur/pool/Pool';\nimport Gunner from './GunnerPool.js';\n\nexport default new Pool(\n    function(name) {\n        return new Gunner(name);\n        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)\n        // return new Gunner( name || 'Billy Bob');\n    },\n    function(name) {\n        return this.pull().init(name);\n    },\n    // The dispose callback parameter also accepts null which will only\n    // use the init callback when calling create();\n    function(obj) {\n        obj.dispose();\n    }\n);"
+                "\n// Stand-alone pool creation.\n// Create a GunnerPool.js file.\n// Create and export a new pool of Gunners.\n\nimport Pool from '@chickendinosaur/pool/Pool.js';\nimport Gunner from './Gunner.js';\n\nexport default new Pool(\n    function(name) {\n        return new Gunner(name);\n        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)\n        // return new Gunner( name || 'Billy Bob');\n    },\n    function(name) {\n        return this.pull().init(name);\n    },\n    // The dispose callback parameter also accepts null which will only\n    // use the init callback when calling create();\n    function(obj) {\n        obj.dispose();\n    }\n);"
             ],
             "params": [
                 {
@@ -69,10 +69,10 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "src\\PoolManager.js",
-            "line": 32,
-            "description": "Keeps track of all pools and allows for future debugging features to be easily\nimplemented.",
+            "line": 30,
+            "description": "Singleton object.\nKeeps track of all pools and allows for future debugging features to be easily\nimplemented.",
             "example": [
-                "\n// Here are a couple of example classes for better visualization.\n\n// Create a test parent class.\nclass Person {\n    constructor(name) {\n        this._name = name;\n    }\n\n    init(name) {\n        this._name = name;\n    }\n\n    dispose() {}\n}\n\n// Create a test child class.\nclass Gunner extends Person {\n    constructor(name) {\n        super(name);\n\n        this._gunType = 'Machine Gun';\n        // This is replaced by a bullet pool in production.\n        this._bullets = [50];\n    }\n\n    // Don't forget to call parent's init if there is one.\n    init(name) {\n        super.init(name);\n    }\n\n    dispose() {\n        // Dispose parent.\n        super.dispose();\n\n        // Reuse the array.\n        const bullets = this._bullets;\n\n        // Note: In reality we would use a Bullet pool for all bullets which means there would be no need\n        // to store bullet here in the first place. Each time a bullet is need we would\n        // do a BulletPool.create() and BulletPool.destroy(bullet) so there's nothing to clean up here\n        // unless there's never going to be anymore bullets used again which would mean we would\n        // do a BulletPool.drain() to get the memory back.\n        while (bullets.length > 0) {\n            bullets.pop();\n        }\n    }\n}\n\n// Create a GunnerPool.js file.\n// Create and export a new pool to contain Gunners with the pool manager.\n\nimport PoolManager from '@chickendinosaur/pool';\nimport Gunner from './GunnerPool.js';\n\nexport default PoolManager.createPool(\n\t// Should use the name of the objects' constructor to pool.\n\t// Functionality may be added in the future for ease of use using\n\tthe object constructor.\n\t'Gunner',\n    function(name) {\n        return new Gunner(name);\n        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)\n        // return new Gunner( name || 'Billy Bob');\n    },\n    function(name) {\n        return this.pull().init(name);\n    },\n    // The dispose callback parameter also accepts null which will only\n    // use the init callback when calling create();\n    function(obj) {\n        obj.dispose();\n    }\n);\n\n// Use the pool anywhere.\n\nimport GunnerPool from './GunnerPool.js';\n\nlet gunner = GunnerPool.create('Crazy Gunner Guy');\n\nGunnerPool.destroy(gunner);\n\ngunner = GunnerPool.create('Another Gunner Guy');"
+                "\n// Here are a couple of example classes for better visualization.\n\n// Create a test parent class.\nclass Person {\n    constructor(name) {\n        this._name = name;\n    }\n\n    init(name) {\n        this._name = name;\n    }\n\n    dispose() {}\n}\n\n// Create a test child class.\nclass Gunner extends Person {\n    constructor(name) {\n        super(name);\n\n        this._gunType = 'Machine Gun';\n        // This is replaced by a bullet pool in production.\n        this._bullets = [50];\n    }\n\n    // Don't forget to call parent's init if there is one.\n    init(name) {\n        super.init(name);\n    }\n\n    dispose() {\n        // Dispose parent.\n        super.dispose();\n\n        // Reuse the array.\n        const bullets = this._bullets;\n\n        // Note: In reality we would use a bullet pool for all bullets which means there would be no need\n        // to store bullets here in the first place. Each time a bullet is needed we would\n        // do a BulletPool.create() and BulletPool.destroy(bullet) so there's nothing to clean up here\n        // unless there's never going to be anymore bullets used again which would mean we would\n        // do a BulletPool.drain() to get the memory back.\n        while (bullets.length > 0) {\n            bullets.pop();\n        }\n    }\n}\n\n// Create a GunnerPool.js file.\n// Create and export a new pool to contain Gunners with the pool manager.\n\nimport PoolManager from '@chickendinosaur/pool';\nimport Gunner from './Gunner.js';\n\nexport default PoolManager.createPool(\n\t// Should use the name of the objects' constructor to pool.\n\t// Functionality may be added in the future for ease of use using\n\t// the object constructor.\n\t'Gunner',\n    function(name) {\n        return new Gunner(name);\n        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)\n        // return new Gunner( name || 'Billy Bob');\n    },\n    function(name) {\n        return this.pull().init(name);\n    },\n    // The dispose callback parameter also accepts null which will only\n    // use the init callback when calling create();\n    function(obj) {\n        obj.dispose();\n    }\n);\n\n// Use the pool anywhere.\n\nimport GunnerPool from './GunnerPool.js';\n\nlet gunner = GunnerPool.create('Crazy Gunner Guy');\n\nGunnerPool.destroy(gunner);\n\ngunner = GunnerPool.create('Another Gunner Guy');"
             ]
         }
     },
@@ -238,7 +238,7 @@
         },
         {
             "file": "src\\PoolManager.js",
-            "line": 129,
+            "line": 128,
             "description": "Stores a new object pool to manage.",
             "itemtype": "method",
             "name": "addPool",
@@ -258,7 +258,7 @@
         },
         {
             "file": "src\\PoolManager.js",
-            "line": 148,
+            "line": 147,
             "description": "Creates and stores a new object pool to manage.",
             "itemtype": "method",
             "name": "createPool",

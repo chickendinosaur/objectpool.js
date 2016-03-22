@@ -29,10 +29,10 @@ SOFTWARE.
 @example
 // Stand-alone pool creation.
 // Create a GunnerPool.js file.
-// Create and export a new pool to contain Gunners.
+// Create and export a new pool of Gunners.
 
-import Pool from '@chickendinosaur/pool/Pool';
-import Gunner from './GunnerPool.js';
+import Pool from '@chickendinosaur/pool/Pool.js';
+import Gunner from './Gunner.js';
 
 export default new Pool(
     function(name) {

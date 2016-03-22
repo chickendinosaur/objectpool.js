@@ -47,10 +47,10 @@ npm install @chickendinosaur/pool
 ```javascript 
 // Stand-alone pool creation.
 // Create a GunnerPool.js file.
-// Create and export a new pool to contain Gunners.
+// Create and export a new pool of Gunners.
 
-import Pool from '@chickendinosaur/pool/Pool';
-import Gunner from './GunnerPool.js';
+import Pool from '@chickendinosaur/pool/Pool.js';
+import Gunner from './Gunner.js';
 
 export default new Pool(
     function(name) {
@@ -108,8 +108,8 @@ class Gunner extends Person {
         // Reuse the array.
         const bullets = this._bullets;
 
-        // Note: In reality we would use a Bullet pool for all bullets which means there would be no need
-        // to store bullet here in the first place. Each time a bullet is need we would
+        // Note: In reality we would use a bullet pool for all bullets which means there would be no need
+        // to store bullets here in the first place. Each time a bullet is needed we would
         // do a BulletPool.create() and BulletPool.destroy(bullet) so there's nothing to clean up here
         // unless there's never going to be anymore bullets used again which would mean we would
         // do a BulletPool.drain() to get the memory back.
@@ -123,12 +123,12 @@ class Gunner extends Person {
 // Create and export a new pool to contain Gunners with the pool manager.
 
 import PoolManager from '@chickendinosaur/pool';
-import Gunner from './GunnerPool.js';
+import Gunner from './Gunner.js';
 
 export default PoolManager.createPool(
 	// Should use the name of the objects' constructor to pool.
 	// Functionality may be added in the future for ease of use using
-	the object constructor.
+	// the object constructor.
 	'Gunner',
     function(name) {
         return new Gunner(name);

@@ -1,9 +1,7 @@
 'use strict';
 
 const path = require('path');
-const fs = require('fs');
-const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8'));
-const Pool = require(path.join('..', '..', 'dist', 'Pool')).default;
+const Pool = require(path.join('..', '..', 'dist', 'Pool.js')).default;
 
 describe('Pool', function() {
     function PooledObject(name) {
