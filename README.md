@@ -156,6 +156,10 @@ gunner = GunnerPool.create('Another Gunner Guy');
 
 ## Tips
 
+#### Usage
+
+It's recommended to always use the PoolManager when creating a pool. This does not hinder performance in any way outside of debug mode. When debugging becomes fully available and you want to make sure the same amount of objects are being reused that are being created etc. the only necessary action will be to toggle debug on or off for the PoolManager. It's free functionality that could be very helpful in a busy app.
+
 #### Performance
 
 - Although all of my examples are in ES6 JavaScript, the current transpilation methods greatly affect performance when using classes; especially using 'super'. The performance hit will be invoked in the object's 'constructor', 'init', and 'dispose' so keep this in mind. If you're interested in performance comparison against other object pools please consider comparing apples to apples and use ES6 or ES5 for both.
@@ -163,7 +167,8 @@ gunner = GunnerPool.create('Another Gunner Guy');
 - When there are no large objects or references to reset in the dispose method then construct the pool with 'null' as the disposeCallback parameter. This will save some good performance when destroying the object.
 
 ```javascript 
-export default new Pool(
+export default PoolManager.createPool(
+    'GunnerPool',
     function(name) {
         // If the object requires any defaults this is a great effective way to do that.
         return new Gunner(name || 'Billy Bob');
