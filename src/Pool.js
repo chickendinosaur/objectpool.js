@@ -27,6 +27,54 @@ SOFTWARE.
 
 /**
 @example
+// Here are a couple of example classes for better visualization.
+
+// Create a test parent class.
+class Person {
+    constructor(name) {
+        this._name = name;
+    }
+
+    init(name) {
+        this._name = name;
+    }
+
+    dispose() {}
+}
+
+// Create a test child class.
+class Gunner extends Person {
+    constructor(name) {
+        super(name);
+
+        this._gunType = 'Machine Gun';
+        // This is replaced by a bullet pool in production.
+        this._bullets = [50];
+    }
+
+    // Don't forget to call parent's init if there is one.
+    init(name) {
+        super.init(name);
+    }
+
+    dispose() {
+        // Dispose parent.
+        super.dispose();
+
+        // Reuse the array.
+        const bullets = this._bullets;
+
+        // Note: In reality we would use a bullet pool for all bullets which means there would be no need
+        // to store bullets here in the first place. Each time a bullet is needed we would
+        // do a BulletPool.create() and BulletPool.destroy(bullet) so there's nothing to clean up here
+        // unless there's never going to be anymore bullets used again which would mean we would
+        // do a BulletPool.drain() to get the memory back.
+        while (bullets.length > 0) {
+            bullets.pop();
+        }
+    }
+}
+
 // Stand-alone pool creation.
 // Create a GunnerPool.js file.
 // Create and export a new pool of Gunners.
@@ -49,6 +97,16 @@ export default new Pool(
         obj.dispose();
     }
 );
+
+// Use the pool anywhere.
+
+import GunnerPool from './GunnerPool.js';
+
+let gunner = GunnerPool.create('Crazy Gunner Guy');
+
+GunnerPool.destroy(gunner);
+
+gunner = GunnerPool.create('Another Gunner Guy');
 
 @class Pool
 @param {function} allocatorCallback

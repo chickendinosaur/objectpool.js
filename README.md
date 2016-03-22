@@ -45,32 +45,6 @@ npm install @chickendinosaur/pool
 
 ### Pool
 ```javascript 
-// Stand-alone pool creation.
-// Create a GunnerPool.js file.
-// Create and export a new pool of Gunners.
-
-import Pool from '@chickendinosaur/pool/Pool.js';
-import Gunner from './Gunner.js';
-
-export default new Pool(
-    function(name) {
-        return new Gunner(name);
-        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)
-        // return new Gunner( name || 'Billy Bob');
-    },
-    function(name) {
-        return this.pull().init(name);
-    },
-    // The dispose callback parameter also accepts null which will only
-    // use the init callback when calling create();
-    function(obj) {
-        obj.dispose();
-    }
-);
-```
-
-### PoolManager
-```javascript 
 // Here are a couple of example classes for better visualization.
 
 // Create a test parent class.
@@ -119,14 +93,14 @@ class Gunner extends Person {
     }
 }
 
+// Stand-alone pool creation.
 // Create a GunnerPool.js file.
-// Create and export a new pool to contain Gunners with the pool manager.
+// Create and export a new pool of Gunners.
 
-import PoolManager from '@chickendinosaur/pool';
+import Pool from '@chickendinosaur/pool/Pool.js';
 import Gunner from './Gunner.js';
 
-export default PoolManager.createPool(
-	'GunnerPool',
+export default new Pool(
     function(name) {
         return new Gunner(name);
         // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)
@@ -151,6 +125,32 @@ let gunner = GunnerPool.create('Crazy Gunner Guy');
 GunnerPool.destroy(gunner);
 
 gunner = GunnerPool.create('Another Gunner Guy');
+```
+
+### PoolManager
+```javascript 
+// Create a GunnerPool.js file.
+// Create and export a new pool to contain Gunners with the pool manager.
+
+import PoolManager from '@chickendinosaur/pool';
+import Gunner from './Gunner.js';
+
+export default PoolManager.createPool(
+	'GunnerPool',
+    function(name) {
+        return new Gunner(name);
+        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)
+        // return new Gunner( name || 'Billy Bob');
+    },
+    function(name) {
+        return this.pull().init(name);
+    },
+    // The dispose callback parameter also accepts null which will only
+    // use the init callback when calling create();
+    function(obj) {
+        obj.dispose();
+    }
+);
 ```
 ---  
 
