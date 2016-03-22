@@ -4,7 +4,7 @@ const Benchmark = require('benchmark');
 const suite = new Benchmark.Suite;
 const path = require('path');
 
-const Pool = require(path.join('..', '..', 'dist', 'Pool')).default;
+const Pool = require(path.join('..', '..', 'dist', 'Pool.js')).default;
 
 /*
 Setup
@@ -45,23 +45,24 @@ var disposeObjectCallback = function(obj) {
 const objectPool = new Pool(
     allocatorCallback,
     renewObjectCallback,
-    disposeObjectCallback, {}
+    disposeObjectCallback
 );
 
 const objectPoolLight = new Pool(
     allocatorCallback,
     renewObjectCallback,
-    null, {}
+    null
 );
 
-objectPool.destroy(new PooledObject());
-
 suite
-    .add('Pooled', function() {
+    .add('Pool cycle', function() {
         objectPool.destroy(objectPool.create('obj'));
     })
-    .add('Pooled', function() {
+    .add('Pool cycle no dispose', function() {
         objectPoolLight.destroy(objectPoolLight.create('obj'));
+    })
+    .add('Pool create', function() {
+        objectPool.create('obj');
     })
     .add('new', function() {
         new PooledObject(null);

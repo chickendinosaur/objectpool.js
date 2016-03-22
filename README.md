@@ -45,52 +45,7 @@ npm install @chickendinosaur/pool
 
 ### Pool
 ```javascript 
-// Create a parent class.
-
-class Person {
-    constructor(name) {
-        this._name = name;
-    }
-
-    init(name) {
-        this._name = name;
-    }
-
-    dispose() {}
-}
-
-// Create a child class.
-
-class Gunner extends Person {
-    constructor(name) {
-        super(name);
-
-        this._gunType = 'Machine Gun';
-        this._bullets = [50];
-    }
-
-    // Don't forget to call parent's init if there is one.
-    init(name) {
-        super.init(name);
-    }
-
-    dispose() {
-        // Dispose parent.
-        super.dispose();
-
-        // Reuse the array.
-        const bullets = this._bullets;
-
-        let n = bullets.length;
-
-        for (; n > 0;) {
-            bullets.pop();
-
-            --n;
-        }
-    }
-}
-
+// Stand-alone pool creation.
 // Create a GunnerPool.js file.
 // Create and export a new pool to contain Gunners.
 
@@ -106,7 +61,84 @@ export default new Pool(
     function(name) {
         return this.pull().init(name);
     },
-    // The dispose callback parameter also accepts null whick will only
+    // The dispose callback parameter also accepts null which will only
+    // use the init callback when calling create();
+    function(obj) {
+        obj.dispose();
+    }
+);
+```
+
+### PoolManager
+```javascript 
+// Here are a couple of example classes for better visualization.
+
+// Create a test parent class.
+class Person {
+    constructor(name) {
+        this._name = name;
+    }
+
+    init(name) {
+        this._name = name;
+    }
+
+    dispose() {}
+}
+
+// Create a test child class.
+class Gunner extends Person {
+    constructor(name) {
+        super(name);
+
+        this._gunType = 'Machine Gun';
+        // This is replaced by a bullet pool in production.
+        this._bullets = [50];
+    }
+
+    // Don't forget to call parent's init if there is one.
+    init(name) {
+        super.init(name);
+    }
+
+    dispose() {
+        // Dispose parent.
+        super.dispose();
+
+        // Reuse the array.
+        const bullets = this._bullets;
+
+        // Note: In reality we would use a Bullet pool for all bullets which means there would be no need
+        // to store bullet here in the first place. Each time a bullet is need we would
+        // do a BulletPool.create() and BulletPool.destroy(bullet) so there's nothing to clean up here
+        // unless there's never going to be anymore bullets used again which would mean we would
+        // do a BulletPool.drain() to get the memory back.
+        while (bullets.length > 0) {
+            bullets.pop();
+        }
+    }
+}
+
+// Create a GunnerPool.js file.
+// Create and export a new pool to contain Gunners with the pool manager.
+
+import PoolManager from '@chickendinosaur/pool';
+import Gunner from './GunnerPool.js';
+
+export default PoolManager.createPool(
+	// Should use the name of the objects' constructor to pool.
+	// Functionality may be added in the future for ease of use using
+	the object constructor.
+	'Gunner',
+    function(name) {
+        return new Gunner(name);
+        // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)
+        // return new Gunner( name || 'Billy Bob');
+    },
+    function(name) {
+        return this.pull().init(name);
+    },
+    // The dispose callback parameter also accepts null which will only
     // use the init callback when calling create();
     function(obj) {
         obj.dispose();
@@ -161,7 +193,7 @@ init() {
 
 dispose() {
     // Dispose parent.
-    this.super.dispose();
+    super.dispose();
 }
 ```
 

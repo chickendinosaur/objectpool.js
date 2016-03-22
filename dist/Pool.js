@@ -27,52 +27,7 @@ SOFTWARE.
 
 /**
 @example
-// Create a parent class.
-
-class Person {
-    constructor(name) {
-        this._name = name;
-    }
-
-    init(name) {
-        this._name = name;
-    }
-
-    dispose() {}
-}
-
-// Create a child class.
-
-class Gunner extends Person {
-    constructor(name) {
-        super(name);
-
-        this._gunType = 'Machine Gun';
-        this._bullets = [50];
-    }
-
-    // Don't forget to call parent's init if there is one.
-    init(name) {
-        super.init(name);
-    }
-
-    dispose() {
-        // Dispose parent.
-        super.dispose();
-
-        // Reuse the array.
-        const bullets = this._bullets;
-
-        let n = bullets.length;
-
-        for (; n > 0;) {
-            bullets.pop();
-
-            --n;
-        }
-    }
-}
-
+// Stand-alone pool creation.
 // Create a GunnerPool.js file.
 // Create and export a new pool to contain Gunners.
 
@@ -88,37 +43,24 @@ export default new Pool(
     function(name) {
         return this.pull().init(name);
     },
-    // The dispose callback parameter also accepts null whick will only
+    // The dispose callback parameter also accepts null which will only
     // use the init callback when calling create();
     function(obj) {
         obj.dispose();
     }
 );
 
-// Use the pool anywhere.
-
-import GunnerPool from './GunnerPool.js';
-
-let gunner = GunnerPool.create('Crazy Gunner Guy');
-
-GunnerPool.destroy(gunner);
-
-gunner = GunnerPool.create('Another Gunner Guy');
-
 @class Pool
 @param {function} allocatorCallback
 @param {function} renewObjectCallback
 @param {function|null} disposeObjectCallback
-@param {object} config
 */
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.default = Pool;
-function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback, config) {
-    var opts = config || {};
-
+function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback) {
     /**
     Hotswap reference for the allocation and renew callbacks.
     Single point of entry for user friendly api and avoids using .apply(this, arguments).
@@ -160,12 +102,17 @@ function Pool(allocatorCallback, renewObjectCallback, disposeObjectCallback, con
     this._allocatorCallback = null;
 
     // Use the init method to encapsulate argument type checking.
-    this.init(allocatorCallback, renewObjectCallback, disposeObjectCallback, config);
+    this.init(allocatorCallback, renewObjectCallback, disposeObjectCallback);
 }
 
 Pool.prototype.constructor = Pool;
 
-Pool.prototype.init = function (allocatorCallback, renewObjectCallback, disposeObjectCallback, config) {
+/**
+Used for pooling.
+
+@method init
+*/
+Pool.prototype.init = function (allocatorCallback, renewObjectCallback, disposeObjectCallback) {
     if (typeof allocatorCallback !== 'function') throw new TypeError();else if (typeof renewObjectCallback !== 'function') throw new TypeError();else if (typeof disposeObjectCallback !== 'function' && disposeObjectCallback) throw new TypeError();
 
     this.create = allocatorCallback;
@@ -174,10 +121,17 @@ Pool.prototype.init = function (allocatorCallback, renewObjectCallback, disposeO
     this._disposeObjectCallback = disposeObjectCallback;
 };
 
+/**
+Used for pooling.
+
+@method dispose
+*/
 Pool.prototype.dispose = function () {
     // Need to replace with an array pool eventually.
     var pool = this._pool;
-    while (pool.pop() !== undefined) {}
+    while (pool.length > 0) {
+        pool.pop();
+    }
 };
 
 /**
@@ -229,5 +183,8 @@ Dereferences/Clears all objects in the pool.
 @method drain
 */
 Pool.prototype.drain = function () {
-    while (this.pull() !== undefined) {}
+    var pool = this._pool;
+    while (pool.length > 0) {
+        this.pull();
+    }
 };
