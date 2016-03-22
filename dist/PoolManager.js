@@ -38,7 +38,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /**
 Singleton object.
 Keeps track of all pools and allows for future debugging features to be easily
-implemented.
+implemented. 
 
 @example
 // Here are a couple of example classes for better visualization.
@@ -96,10 +96,7 @@ import PoolManager from '@chickendinosaur/pool';
 import Gunner from './Gunner.js';
 
 export default PoolManager.createPool(
-	// Should use the name of the objects' constructor to pool.
-	// Functionality may be added in the future for ease of use using
-	// the object constructor.
-	'Gunner',
+	'GunnerPool',
     function(name) {
         return new Gunner(name);
         // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)
@@ -129,36 +126,27 @@ gunner = GunnerPool.create('Another Gunner Guy');
 */
 function PoolManager() {
     this._pools = {};
+    this._poolCount = 0;
 }
 
 PoolManager.prototype.constructor = PoolManager;
 
 /**
-Stores a new object pool to manage.
-
-@method addPool
-@param {string} objectName
-@param {Pool} pool
-*/
-PoolManager.prototype.addPool = function (objectName, pool) {
-    if (typeof objectName !== 'string') throw new TypeError();else if (this._pools[objectName]) throw new Error('Pool \'' + objectName + '\' already exists.');
-
-    this._pools[objectName] = pool;
-};
-
-/**
 Creates and stores a new object pool to manage.
 
 @method createPool
-@param {string} objectName
+@param {string} poolName
 @param {function} allocatorCallback
 @param {function} renewObjectCallback
 @param {function|null} disposeObjectCallback
 */
-PoolManager.prototype.createPool = function (objectName, allocatorCallback, renewObjectCallback, disposeObjectCallback) {
+PoolManager.prototype.createPool = function (poolName, allocatorCallback, renewObjectCallback, disposeObjectCallback) {
+    if (typeof poolName !== 'string') throw new TypeError();else if (this._pools[poolName]) throw new Error('Pool for \'' + poolName + '\' already exists.');
+
     var pool = new _Pool2.default(allocatorCallback, renewObjectCallback, disposeObjectCallback);
 
-    this.addPool(objectName, pool);
+    this._pools[poolName] = pool;
+    this._poolCount++;
 
     return pool;
 };

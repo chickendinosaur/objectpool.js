@@ -126,10 +126,7 @@ import PoolManager from '@chickendinosaur/pool';
 import Gunner from './Gunner.js';
 
 export default PoolManager.createPool(
-	// Should use the name of the objects' constructor to pool.
-	// Functionality may be added in the future for ease of use using
-	// the object constructor.
-	'Gunner',
+	'GunnerPool',
     function(name) {
         return new Gunner(name);
         // Or set up defaults for generating up front objects when setting the size or just calling create() with no arguments. (not implemented yet)

@@ -29,13 +29,13 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _Pool = require('./../Pool.js');
+var _PoolManager = require('./../PoolManager.js');
 
-var _Pool2 = _interopRequireDefault(_Pool);
+var _PoolManager2 = _interopRequireDefault(_PoolManager);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = new _Pool2.default(function () {
+exports.default = _PoolManager2.default.createPool('ArrayLiteralPool', function () {
     return [];
 }, function () {
     return this.pull();

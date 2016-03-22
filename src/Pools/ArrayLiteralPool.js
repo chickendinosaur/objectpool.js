@@ -25,9 +25,10 @@ SOFTWARE.
 
 'use strict';
 
-import Pool from './../Pool.js';
+import PoolManager from './../PoolManager.js';
 
-export default new Pool(
+export default PoolManager.createPool(
+    'ArrayLiteralPool',
     function() {
         return [];
     },
