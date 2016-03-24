@@ -1,6 +1,6 @@
 {
   "name": "@chickendinosaur/pool",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Maintains a collection of an objects of a single type for reuse.",
   "files": [
     "dist"
