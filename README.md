@@ -183,8 +183,6 @@ export default PoolManager.createPool(
 
 #### Creating dispose and init methods
 
-- If a property is not referencing another 'object' or collection you can avoid having to 'dispose' it since all primitive properties should be getting reset in the init method.
-
 - Do not forget to call the parent's dispose method if inheriting from another object. 
 
 ```javascript 
